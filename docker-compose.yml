@@ -1,0 +1,14 @@
+services:
+  juice-shop:
+    image: bkimminich/juice-shop
+    container_name: juice-shop
+    ports:
+      - "3000:3000"
+
+  kali:
+    build: .
+    container_name: kali-scanner
+    depends_on:
+      - juice-shop
+    volumes:
+      - ./reports:/reports
