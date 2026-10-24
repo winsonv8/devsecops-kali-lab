@@ -1,0 +1,35 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start lab
+        run: |
+          mkdir -p reports
+          docker compose up -d --build
+          sleep 30
+
+      - name: Run Nmap scan
+        run: docker exec kali-scanner nmap -sV -p 3000 juice-shop -oN /reports/nmap.txt
+
+      - name: Run Nikto scan
+        run: docker exec kali-scanner nikto -h http://juice-shop:3000 -maxtime 120s -o /reports/nikto.txt -Format txt
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-reports
+          path: reports/
+
+      - name: Stop lab
+        if: always()
+        run: docker compose down
