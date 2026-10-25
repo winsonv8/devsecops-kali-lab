@@ -13,7 +13,7 @@ Docker, Docker Compose, Kali Linux, Nmap, Nikto, GitHub Actions, OWASP Juice Sho
 
 ## Run locally
     docker-compose up -d --build
-    docker exec kali-scanner nmap -sV -p 3000 juice-shop -oN /reports/nmap.txt
+    docker exec kali-scanner nmap -Pn -p 3000 --script http-title,http-headers juice-shop -oN /reports/nmap.txt
     docker exec kali-scanner nikto -h http://juice-shop:3000 -maxtime 120s -o /reports/nikto.txt -Format txt
     docker-compose down
 
