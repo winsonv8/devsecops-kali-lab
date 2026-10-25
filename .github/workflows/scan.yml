@@ -19,7 +19,7 @@ jobs:
           sleep 30
 
       - name: Run Nmap scan
-        run: docker exec kali-scanner nmap -sV -p 3000 juice-shop -oN /reports/nmap.txt
+        run: docker exec kali-scanner nmap -Pn -p 3000 --script http-title,http-headers juice-shop -oN /reports/nmap.txt
 
       - name: Run Nikto scan
         run: docker exec kali-scanner nikto -h http://juice-shop:3000 -maxtime 120s -o /reports/nikto.txt -Format txt
