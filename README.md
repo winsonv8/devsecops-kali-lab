@@ -1,9 +1,9 @@
 # DevSecOps Kali Lab
 
-An automated security-scanning lab built with Docker and GitHub Actions. Docker Compose starts a deliberately vulnerable web app (OWASP Juice Shop) and a custom Kali Linux scanner container. A CI pipeline builds the lab, runs Nmap and Nikto against the target on every push, and publishes the reports as build artifacts.
+An automated security-scanning lab built with Docker and GitHub Actions. Docker Compose starts a deliberately vulnerable web app (OWASP Juice Shop) and a custom Kali Linux scanner container. A CI pipeline builds the lab, runs Nmap, Nikto and OWASP ZAP against the target on every push, and publishes the reports as build artifacts.
 
 ## Tech stack
-Docker, Docker Compose, Kali Linux, Nmap, Nikto, GitHub Actions, OWASP Juice Shop
+Docker, Docker Compose, Kali Linux, Nmap, Nikto, OWASP ZAP, GitHub Actions, OWASP Juice Shop
 
 ## Architecture
 - `Dockerfile`: Kali image with Nmap and Nikto pre-installed
@@ -18,7 +18,10 @@ Docker, Docker Compose, Kali Linux, Nmap, Nikto, GitHub Actions, OWASP Juice Sho
     docker-compose down
 
 ## CI pipeline
-Runs on every push to `main` and can be started manually from the Actions tab. Steps: checkout, build and start the lab, run Nmap, run Nikto, upload the `scan-reports` artifact, tear down.
+Runs on every push to `main` and can be started manually from the Actions tab. Steps: checkout, build and start the lab, run Nmap, run Nikto, run OWASP ZAP, upload the `scan-reports` artifact, tear down.
+
+![Pipeline run](pipeline.png)
+   
 
 ## What I learned
 - Containers on the same Compose network reach each other by service name.
@@ -26,8 +29,8 @@ Runs on every push to `main` and can be started manually from the Actions tab. S
 - CI failures can come from flaky external mirrors, so builds should retry downloads.
 
 ## Roadmap
-- Add OWASP ZAP scanning
 - Fail the build on high-severity findings
+- Add a ZAP full (active) scan
 - Provision the lab with Terraform or Ansible
 
 ## Ethics
