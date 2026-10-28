@@ -32,3 +32,11 @@ Runs on every push to `main` and can be started manually from the Actions tab. S
 
 ## Ethics
 Only scan systems you own or intentionally vulnerable labs like Juice Shop.
+
+## Sample findings (Juice Shop)
+OWASP ZAP baseline: 0 High, 2 Medium, 4 Low, 3 Informational.
+
+- Medium: Content Security Policy (CSP) header not set
+- Medium: Cross-domain misconfiguration (wildcard CORS)
+  
+Nikto independently flagged the same wildcard CORS header, missing security headers, and an exposed /ftp/ directory.
