@@ -24,6 +24,10 @@ jobs:
       - name: Run Nikto scan
         run: docker exec kali-scanner nikto -h http://juice-shop:3000 -maxtime 120s -o /reports/nikto.txt -Format txt
 
+      - name: Run OWASP ZAP baseline scan
+        run: |
+          docker run --rm --network devsecops-kali-lab_default -v ${{ github.workspace }}/reports:/zap/wrk:rw -u root ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://juice-shop:3000 -r zap-report.html -I
+
       - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
