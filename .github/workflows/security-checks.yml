@@ -1,0 +1,63 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secrets scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dockerfile-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Juice Shop source
+        run: git clone --depth 1 https://github.com/juice-shop/juice-shop.git
+
+      - name: Run Semgrep
+        run: |
+          mkdir -p reports
+          docker run --rm -v "${PWD}/juice-shop:/src" -v "${PWD}/reports:/reports" semgrep/semgrep semgrep scan --config p/javascript --config p/owasp-top-ten --text --output /reports/semgrep.txt /src
+
+      - name: Upload SAST report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-report
+          path: reports/
+
+  image-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Trivy on Juice Shop image
+        run: |
+          mkdir -p reports
+          docker run --rm -v "${PWD}/reports:/reports" aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 0 --output /reports/trivy-juice-shop.txt bkimminich/juice-shop:latest
+
+      - name: Upload image scan report
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-scan-report
+          path: reports/
