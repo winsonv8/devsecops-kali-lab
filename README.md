@@ -37,9 +37,26 @@ Runs on every push to `main` and can be started manually from the Actions tab. S
 Only scan systems you own or intentionally vulnerable labs like Juice Shop.
 
 ## Sample findings (Juice Shop)
-OWASP ZAP baseline: 0 High, 2 Medium, 4 Low, 3 Informational.
 
+Security Checks pipeline:
+- Gitleaks: no secrets detected in this repository's history
+- Semgrep (SAST on Juice Shop source): 43 code findings, including unpinned GitHub Actions and curl-pipe-to-shell patterns
+- Trivy (image scan): 43 HIGH/CRITICAL CVEs in Node.js dependencies (32 HIGH, 11 CRITICAL), 0 in the Debian OS layer, plus 2 hardcoded secrets
+- Hadolint: 2 style warnings (unpinned base image and packages, intentional for a rolling distribution)
+
+Security Scan pipeline:
+- OWASP ZAP baseline: 0 High, 2 Medium, 4 Low, 3 Informational
 - Medium: Content Security Policy (CSP) header not set
 - Medium: Cross-domain misconfiguration (wildcard CORS)
-  
-Nikto independently flagged the same wildcard CORS header, missing security headers, and an exposed /ftp/ directory.
+
+Juice Shop is intentionally vulnerable, so these findings are expected.
+
+## Pipeline stages
+
+| Stage | Tool | Checks |
+|---|---|---|
+| Secrets scan | Gitleaks | Credentials committed to the repo |
+| Dockerfile lint | Hadolint | Dockerfile best practices |
+| SAST | Semgrep | Insecure patterns in source code |
+| Image scan | Trivy | Known CVEs in the container image |
+| DAST | Nmap, Nikto, OWASP ZAP | Running app: ports, headers, web vulnerabilities |
